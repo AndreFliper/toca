@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Festas Disponíveis{% endblock %}
+
+{% block content %}
+    <h1>Festas Disponíveis</h1>
+
+    {% if user.is_authenticated %}
+        <p>Bem-vindo, {{ user.username }}!</p>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Sair</button>
+        </form>        
+        <a href="{% url 'configurar_conta' %}"><button>Configurações da Conta</button></a>
+    {% else %}
+        <a href="{% url 'login' %}"><button>Login</button></a>
+    {% endif %}
+
+    <hr>
+
+    <!-- Filtros de Cidade e Gênero -->
+    <form method="get">
+        <h3>Filtrar por Cidade:</h3>
+        {% for cidade in cidades %}
+            <label>
+                <input type="checkbox" name="cidade" value="{{ cidade.id }}" 
+                    {% if cidade.id|stringformat:"s" in cidade_selecionada %}checked{% endif %}>
+                {{ cidade.nome }}
+            </label><br>
+        {% endfor %}
+    
+        <h3>Filtrar por Gênero:</h3>
+        {% for genero in generos %}
+            <label>
+                <input type="checkbox" name="genero" value="{{ genero.id }}" 
+                    {% if genero.id|stringformat:"s" in genero_selecionado %}checked{% endif %}>
+                {{ genero.nome }}
+            </label><br>
+        {% endfor %}
+    
+        <button type="submit">Filtrar</button>
+    </form>
+
+    <hr>
+
+    {% if festas_filtradas %}
+    <h2>Festas Encontradas</h2>
+    <ul>
+        {% for festa in festas_filtradas %}
+            <li><strong>Nome:</strong> {{ festa.nome }}</li>
+            <li><strong>Data:</strong> {{ festa.data }}</li>
+            <li><strong>Cidade:</strong> 
+                {% for cidade in festa.cidades.all %}
+                    {{ cidade.nome }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </li>
+            <li><strong>Gêneros:</strong> 
+                {% for genero in festa.generos.all %}
+                    {{ genero.nome }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </li>
+            <li><a href="{{ festa.link }}" target="_blank">Ver mais</a></li>
+            <hr>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p><strong>Nenhuma festa encontrada.</strong></p>
+{% endif %}
+
+{% if outras_festas %}
+    <h2>Outras Festas Disponíveis</h2>
+    <ul>
+        {% for festa in outras_festas %}
+            <li><strong>Nome:</strong> {{ festa.nome }}</li>
+            <li><strong>Data:</strong> {{ festa.data }}</li>
+            <li><strong>Cidade:</strong> 
+                {% for cidade in festa.cidades.all %}
+                    {{ cidade.nome }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </li>
+            <li><strong>Gêneros:</strong> 
+                {% for genero in festa.generos.all %}
+                    {{ genero.nome }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </li>
+            <li><a href="{{ festa.link }}" target="_blank">Ver mais</a></li>
+            <hr>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}
